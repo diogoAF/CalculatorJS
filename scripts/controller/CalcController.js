@@ -1,5 +1,8 @@
 class CalcController {
     constructor() {
+        this._lastOperator = ''
+        this._lastNumber = ''
+
         this._operation = []
         this._displayCalcEl = document.querySelector("#display")
         this._dateEl = document.querySelector("#data")
@@ -61,7 +64,7 @@ class CalcController {
                 this.addOperation('%')
                 break
             case 'igual':
-                this.doCalc()
+                this.doCalc(true)
                 this.setLastNumberToDisplay()
                 break
             case 'ponto':
@@ -124,14 +127,28 @@ class CalcController {
         console.log(this._operation)
     }
 
-    doCalc(){
+    doCalc(isEqual = false){
         if(this._operation.length < 3) {
-            this.getLastOperation()
+            if(isEqual){
+                let firstItem
+                if(this._operation[0]){
+                    firstItem = this._operation[0]
+                } else {
+                    firstItem = 0
+                }
+                this._operation = [firstItem,this._lastOperator,this._lastNumber]
+                let result = eval(this._operation.join(''))
+                this._operation = [result]    
+            } else {
+                this.getLastOperation()
+            }
         } else {
+            this._lastOperator = this.getLastItem(true)
+            this._lastNumber = this.getLastItem(false)
             let result = eval(this._operation.join(''))
             this._operation = [result]    
+            if(!isEqual) this._lastNumber = this.getLastItem(false)
         }
-        
     }
 
     pushOperation(operation){
@@ -183,15 +200,22 @@ class CalcController {
     setError(){
         this.displayCalc = 'ERROR'
     }
-    setLastNumberToDisplay(){
-        let lastNumber = 0
+
+    getLastItem(isOperator = true){
+        let lastItem = 0
         for(let i = this._operation.length-1;i >= 0;i--){
-            if(!this.isOperator(this._operation[i])){
-                lastNumber = this._operation[i]
+            if(this.isOperator(this._operation[i]) == isOperator){
+                lastItem = this._operation[i]
                 break
             }
         }
-        this.displayCalc = lastNumber
+
+        return lastItem
+    }
+
+    setLastNumberToDisplay(){
+
+        this.displayCalc = this.getLastItem(false)
     }
 
     setDisplayDateTime(){
