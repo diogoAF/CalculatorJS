@@ -242,7 +242,7 @@ class CalcController {
                     firstItem = 0
                 }
                 this._operation = [firstItem,this._lastOperator,this._lastNumber]
-                let result = eval(this._operation.join(''))
+                let result = this.doEval()
                 this._operation = [result]    
             } else {
                 this.getLastOperation()
@@ -250,9 +250,18 @@ class CalcController {
         } else {
             this._lastOperator = this.getLastItem(true)
             this._lastNumber = this.getLastItem(false)
-            let result = eval(this._operation.join(''))
+            let result = this.doEval()
             this._operation = [result]    
             if(!isEqual) this._lastNumber = this.getLastItem(false)
+        }
+    }
+
+    doEval(){
+        try {
+            return eval(this._operation.join(''))
+        } catch(e){
+            this.clearAll()
+            this.setError()
         }
     }
 
@@ -352,6 +361,9 @@ class CalcController {
     }
 
     set displayCalc(value){
+        if(value.toString().length > 10){
+            return this.setError()
+        }
         this._displayCalcEl.innerHTML = value 
     }
 
