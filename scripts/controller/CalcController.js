@@ -2,6 +2,8 @@ class CalcController {
     constructor() {
         this._lastOperator = ''
         this._lastNumber = ''
+        this._isAudioOn = false
+        this._audio = new Audio('click.mp3')
 
         this._operation = []
         this._displayCalcEl = document.querySelector("#display")
@@ -37,10 +39,17 @@ class CalcController {
         }, 1000)
         this.setLastNumberToDisplay()
         this.pasteFromClipboard()
+
+        document.querySelectorAll('.btn-ac').forEach(btn=>{
+            btn.addEventListener('dblclick', e=>{
+                this.toggleAudio()
+            })
+        })
     }
 
     initKeyBoard(){
         document.addEventListener('keyup', e=>{
+            this.playAudio()
             switch(e.key){
                 case 'Escape':
                     this.clearAll()
@@ -84,6 +93,17 @@ class CalcController {
         })
     }
 
+    toggleAudio(){
+        this._isAudioOn = !this._isAudioOn
+    }
+
+    playAudio(){
+        if(this._isAudioOn){
+            this._audio.currentTime = 0
+            this._audio.play()
+        }
+    }
+
     initButtonsEvents(){
         let buttons = document.querySelectorAll("#buttons > g, #parts > g")
         buttons.forEach((btn, index) => {
@@ -105,6 +125,7 @@ class CalcController {
 
     // OPERATIONS
     execBtn(value){
+        this.playAudio()
         switch(value){
             case 'ac':
                 this.clearAll()
